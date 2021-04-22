@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">ThefThor</string>
+    <string name="label_login">Identifiant</string>
+    <string name="label_pwd">Mot de passe</string>
+    <string name="connection">Se connecter</string>
+    <string name="sinscrire">Créer un compte</string>
+    <string name="alert">Echec de connexion! Recommencer...</string>
+    <string name="check">Se souvenir de moi</string>
+    <string name="mdpoublie">Mot de passe oublié?</string>
+    <string name="URL_CONNECTION">https://thefthor.picatinny.space/app/connection/%s</string>
+</resources>

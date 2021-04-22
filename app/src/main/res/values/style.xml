@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="NoActionBar" parent="Theme.AppCompat.NoActionBar">
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="checkBoxStyle">
+        <item name="colorControlNormal">@color/blue_light</item>
+        <item name="colorControlActivated">@color/blue</item>
+        <item name="android:textColor">@color/blue_light</item>
+
+    </style>
+
+</resources>
