@@ -374,12 +374,40 @@
     <!-- Layout Notifications -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="530dp"
+        android:layout_height="550dp"
         android:id="@+id/layout_notification"
         android:background="@drawable/shape_bg"
         android:visibility="invisible"
+        android:orientation="vertical"
         android:layout_alignParentBottom="true">
+        <ScrollView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:layout_marginLeft="40dp"
+                android:textSize="17dp"
+                android:textStyle="normal"
+                android:fontFamily="sans-serif-medium"
+                android:text="Notifications"
+                android:textColor="@color/gray_text"
+                />
 
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_view_notifications"
+                    android:layout_width="match_parent"
+                    android:layout_height="407dp"
+                    android:elevation="20dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="70dp"/>
+
+            </RelativeLayout>
+        </ScrollView>
     </RelativeLayout>
 
 </RelativeLayout>

@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.data.BarData;
@@ -20,11 +22,15 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.ArrayList;
 
 import fr.app.theft.R;
+import fr.app.theft.adapter.NotificationAdapter;
+import fr.app.theft.entities.Notification;
 import fr.app.theft.utils.Session;
 
 public class BoardActivity extends AppCompatActivity {
 
-    //private BottomNavigationView bottomNavigationView;
+    RecyclerView recyclerView;
+    NotificationAdapter adapter;
+    String [] test = {"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet, nunc sed viverra molestie, est eros venenatis nisl, id ullamcorper tortor nibh ac risus.","Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet, nunc sed viverra molestie, est eros venenatis nisl, id ullamcorper tortor nibh ac risus.","Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet, nunc sed viverra molestie, est eros venenatis nisl, id ullamcorper tortor nibh ac risus.","F","G","G","Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aliquet, nunc sed viverra molestie, est eros venenatis nisl, id ullamcorper tortor nibh ac risus."};
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,6 +41,11 @@ public class BoardActivity extends AppCompatActivity {
 
         this.bottomNavigationViewConfiguration();
         this.setBarChart();
+
+        recyclerView = findViewById(R.id.recycler_view_notifications);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new NotificationAdapter(this, test);
+        recyclerView.setAdapter(adapter);
         //Toast.makeText(BoardActivity.this, Session.getSession().getAccount().toString(), Toast.LENGTH_LONG).show();
     }
 
@@ -47,17 +58,23 @@ public class BoardActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 RelativeLayout layoutSynthese = findViewById(R.id.layout_synthese);
                 RelativeLayout layoutProfil = findViewById(R.id.layout_profil);
+                RelativeLayout layoutNotification = findViewById(R.id.layout_notification);
                 switch (item.getItemId()){
                     case R.id.synthese:
+                        layoutNotification.setVisibility(View.INVISIBLE);
                         layoutSynthese.setVisibility(View.VISIBLE);
                         layoutProfil.setVisibility(View.INVISIBLE);
                         break;
                     case R.id.profil:
+                        layoutNotification.setVisibility(View.INVISIBLE);
                         layoutProfil.setVisibility(View.VISIBLE);
                         layoutSynthese.setVisibility(View.INVISIBLE);
                         break;
                     case R.id.notification:
-                        Toast.makeText(BoardActivity.this, "Notification", Toast.LENGTH_SHORT).show();
+                        layoutNotification.setVisibility(View.VISIBLE);
+                        layoutProfil.setVisibility(View.INVISIBLE);
+                        layoutSynthese.setVisibility(View.INVISIBLE);
+                        //Toast.makeText(BoardActivity.this, "Notification", Toast.LENGTH_SHORT).show();
 
                         break;
                     case R.id.parametre:
@@ -94,7 +111,7 @@ public class BoardActivity extends AppCompatActivity {
         days.add("20");
         days.add("21");
 
-        BarDataSet bardataset = new BarDataSet(alerts, "Alert par jour");
+        BarDataSet bardataset = new BarDataSet(alerts, "Alerte par jour");
         chart.animateY(5000);
         BarData data = new BarData(days, bardataset);
         int[] colors = {ColorTemplate.rgb("F3AD4C")};
