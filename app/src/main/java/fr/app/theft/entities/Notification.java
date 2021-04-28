@@ -1,8 +1,12 @@
 package fr.app.theft.entities;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import java.time.LocalDate;
 
-public class Notification {
+public class Notification implements  Comparable<Notification>{
 
     private int id;
     private String tag;
@@ -57,5 +61,11 @@ public class Notification {
                 ", message='" + message + '\'' +
                 ", date=" + date +
                 '}';
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    public int compareTo(Notification notification) {
+        return notification.getDate().compareTo(getDate());
     }
 }

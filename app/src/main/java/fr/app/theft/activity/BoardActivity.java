@@ -1,6 +1,7 @@
 package fr.app.theft.activity;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -27,7 +28,6 @@ import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,6 +36,7 @@ import org.json.JSONObject;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.ThreadLocalRandom;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -61,9 +62,6 @@ public class BoardActivity extends AppCompatActivity {
         circleImageView = findViewById(R.id.avatar);
         layoutSynthese.setVisibility(View.VISIBLE);
 
-        this.bottomNavigationViewConfiguration();
-        this.setBarChart();
-        this.setData();
         circleImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -116,7 +114,7 @@ public class BoardActivity extends AppCompatActivity {
 
         });
         queue.add(jsonArrayRequest);
-
+        new BackgroundTask().execute();
     }
 
 
@@ -132,7 +130,6 @@ public class BoardActivity extends AppCompatActivity {
                 RelativeLayout layoutNotification = findViewById(R.id.layout_notification);
                 switch (item.getItemId()){
                     case R.id.synthese:
-
                         layoutNotification.setVisibility(View.INVISIBLE);
                         layoutSynthese.setVisibility(View.VISIBLE);
                         layoutProfil.setVisibility(View.INVISIBLE);
@@ -157,13 +154,14 @@ public class BoardActivity extends AppCompatActivity {
 
                         recyclerView = findViewById(R.id.recycler_view_notifications);
                         recyclerView.setLayoutManager(new LinearLayoutManager(BoardActivity.this));
+                        Collections.sort(notifications);
                         adapter = new NotificationAdapter(BoardActivity.this, notifications);
                         recyclerView.setAdapter(adapter);
 
                         layoutNotification.setVisibility(View.VISIBLE);
                         layoutProfil.setVisibility(View.INVISIBLE);
                         layoutSynthese.setVisibility(View.INVISIBLE);
-                        //Toast.makeText(BoardActivity.this, "Notification", Toast.LENGTH_SHORT).show();
+                        findViewById(R.id.notification_bulle).setVisibility(View.INVISIBLE);
                         break;
                 }
                 return true;
@@ -204,16 +202,53 @@ public class BoardActivity extends AppCompatActivity {
 
         TextView trial = findViewById(R.id.countdown_trial);
         TextView titleTv = findViewById(R.id.titleTv);
+        TextView connectionCounter = findViewById(R.id.notification_counter);
+
         TextView lastConnection = findViewById(R.id.last_connection);
         lastConnection.setText(Session.getSession().getAccount().getLastConnection().toString());
         LocalDate today = LocalDate.now();
         String duration = String.valueOf(Duration.between(today.atStartOfDay(), Session.getSession().getAccount().getTrial().atStartOfDay()).toDays());
         trial.setText(duration+" Jour(s)");
         titleTv.setText(Session.getSession().getAccount().getName().split(" ")[1]);
+        connectionCounter.setText(String.valueOf(notifications.size()));
+        String ava = "id"+Session.getSession().getAccount().getIdAccount();
+        int id = getResources().getIdentifier("fr.app.theft:drawable/" + ava, null, null);
+        CircleImageView circleImageView = findViewById(R.id.avatar);
+        circleImageView.setImageResource(id);
+
     }
 
     public void avatar(){
         Toast.makeText(BoardActivity.this, "Change avatar...", Toast.LENGTH_LONG).show();
+    }
+
+    private class BackgroundTask extends AsyncTask<Void, Void, Void> {
+
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            setData();
+            bottomNavigationViewConfiguration();
+            setBarChart();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) { }
+
+            return null;
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        @Override
+        public void onPostExecute(Void result) {
+            setData();
+            bottomNavigationViewConfiguration();
+            setBarChart();
+        }
     }
 
 }

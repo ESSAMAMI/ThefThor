@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/card_notification"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -38,6 +39,20 @@
                 android:textStyle="normal"
                 android:fontFamily="sans-serif-medium"
                 android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+                android:textColor="@color/white"
+                />
+
+            <TextView
+                android:id="@+id/date_recieve"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="265dp"
+                android:padding="15dp"
+                android:textAlignment="center"
+                android:textSize="10dp"
+                android:textStyle="normal"
+                android:fontFamily="sans-serif-medium"
+                android:text="1 j"
                 android:textColor="@color/white"
                 />
         </RelativeLayout>

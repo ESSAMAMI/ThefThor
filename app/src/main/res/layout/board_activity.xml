@@ -341,7 +341,6 @@
         android:layout_marginLeft="35dp"
         android:layout_width="66dp"
         android:layout_height="66dp"
-        android:src="@drawable/author"
         app:civ_border_width="2dp"
         android:clickable="true"
         android:focusable="true"
@@ -374,6 +373,7 @@
         android:orientation="horizontal"
         android:layout_marginTop="711dp">
         <TextView
+            android:id="@+id/notification_counter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="7"
