@@ -21,12 +21,11 @@ import fr.app.theft.entities.Notification;
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder> {
 
     private Context context;
-    //private ArrayList<Notification> notifications;
-    private String[] data;
+    private ArrayList<Notification> notifications;
 
-    public NotificationAdapter(Context context, String[] data) {
+    public NotificationAdapter(Context context, ArrayList<Notification> notifications) {
         this.context = context;
-        this.data = data;
+        this.notifications = notifications;
     }
 
     @NonNull
@@ -43,22 +42,22 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @NonNull
     @Override
     public void onBindViewHolder(@NonNull NotificationAdapter.ViewHolder holder, int position) {
-        holder.message.setText(data[position]);
+        holder.tag.setText(notifications.get(position).getTag());
+        holder.message.setText(notifications.get(position).getMessage());
     }
 
     @Override
     public int getItemCount() {
-        return data.length;
-        //return notifications.size();
+        return notifications.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
-        TextView titre;
+        TextView tag;
         TextView message;
         public ViewHolder(@NonNull View itemView){
             super(itemView);
 
-            titre  = itemView.findViewById(R.id.titre);
+            tag  = itemView.findViewById(R.id.titre);
             message = itemView.findViewById(R.id.message);
         }
     }

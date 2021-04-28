@@ -25,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="120dp"
-        android:id="@+id/title"
+        android:id="@+id/titleTv"
         android:textSize="35dp"
         android:textStyle="bold"
         android:fontFamily="sans-serif-medium"
@@ -88,6 +88,7 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/bg">
                 <TextView
+                    android:id="@+id/last_connection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
@@ -115,6 +116,7 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/bg">
                 <TextView
+                    android:id="@+id/countdown_trial"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
@@ -138,7 +140,7 @@
             android:textSize="12dp"
             android:textStyle="normal"
             android:fontFamily="sans-serif-medium"
-            android:text="Indicateur d'alert"
+            android:text="Indicateur d'alerte"
             android:textColor="@color/text"
             />
         <androidx.cardview.widget.CardView
@@ -195,6 +197,7 @@
             android:textCursorDrawable="@drawable/cursor"
             app:hintTextColor="@color/blue_light">
             <EditText
+                android:id="@+id/user_name"
                 android:layout_width="330dp"
                 android:layout_height="60dp"
                 android:layout_alignParentBottom="true"
@@ -206,7 +209,7 @@
                 android:textColor="@color/blue_light"
                 android:singleLine="true"
                 android:drawablePadding="10dp"
-                android:hint="ESSAMAMI"
+                android:hint="Nom"
                 android:textColorHint="@color/blue"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
@@ -228,6 +231,7 @@
             android:textCursorDrawable="@drawable/cursor"
             app:hintTextColor="@color/blue_light">
             <EditText
+                android:id="@+id/user_suername"
                 android:layout_width="330dp"
                 android:layout_height="60dp"
                 android:layout_alignParentBottom="true"
@@ -239,7 +243,7 @@
                 android:textColor="@color/blue_light"
                 android:singleLine="true"
                 android:drawablePadding="10dp"
-                android:hint="Hamza"
+                android:hint="Prénom"
                 android:textColorHint="@color/blue"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
@@ -261,6 +265,7 @@
             android:textCursorDrawable="@drawable/cursor"
             app:hintTextColor="@color/blue_light">
             <EditText
+                android:id="@+id/user_email"
                 android:layout_width="330dp"
                 android:layout_height="60dp"
                 android:layout_alignParentBottom="true"
@@ -272,11 +277,11 @@
                 android:singleLine="true"
                 android:drawablePadding="10dp"
                 android:drawableRight="@drawable/email"
-                android:hint="h.essamami@admin.com"
+                android:hint="E-mail"
                 android:textColorHint="@color/blue"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
-                android:inputType="text"
+                android:inputType="textEmailAddress"
                 android:textStyle="bold"
                 android:textSize="13sp"
                 android:background="@drawable/custom_input" />
@@ -294,6 +299,7 @@
             android:textCursorDrawable="@drawable/cursor"
             app:hintTextColor="@color/blue_light">
             <EditText
+                android:id="@+id/user_pwd"
                 android:layout_width="330dp"
                 android:layout_height="60dp"
                 android:layout_alignParentBottom="true"
@@ -305,11 +311,11 @@
                 android:singleLine="true"
                 android:drawablePadding="10dp"
                 android:drawableRight="@drawable/key"
-                android:hint="******************"
+                android:hint="Mot de passe"
                 android:textColorHint="@color/blue"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
-                android:inputType="text"
+                android:inputType="textPassword"
                 android:textStyle="bold"
                 android:textSize="13sp"
                 android:background="@drawable/custom_input" />
@@ -327,17 +333,24 @@
             android:text="Enregistrer" />
 
     </RelativeLayout>
-    <LinearLayout
-        android:layout_width="100dp"
-        android:layout_height="65dp"
-        android:layout_marginLeft="15dp"
-        android:elevation="5dp"
-        android:background="@drawable/author"
-        android:layout_marginTop="28dp"/>
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/avatar"
+        android:layout_marginTop="40dp"
+        android:layout_marginLeft="35dp"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
+        android:src="@drawable/author"
+        app:civ_border_width="2dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:civ_border_color="@color/orange"/>
+
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigationView"
-        android:layout_width="340dp"
+        android:layout_width="300dp"
         android:layout_marginBottom="10dp"
         android:layout_centerHorizontal="true"
         android:layout_height="60dp"
@@ -355,7 +368,7 @@
         android:id="@+id/notification_bulle"
         android:layout_width="15dp"
         android:layout_height="15dp"
-        android:layout_marginLeft="239dp"
+        android:layout_marginLeft="297dp"
         android:background="@drawable/bg_circle"
         android:elevation="13dp"
         android:orientation="horizontal"

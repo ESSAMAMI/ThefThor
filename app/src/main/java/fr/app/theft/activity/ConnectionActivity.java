@@ -61,7 +61,7 @@ public class ConnectionActivity extends AppCompatActivity {
         String credentials = String.valueOf(login.getText()).toLowerCase() +"."+String.valueOf(pwd.getText()).toLowerCase();
         String url = String.format(getResources().getString(R.string.URL_CONNECTION), credentials);
 
-        /*RequestQueue queue = Volley.newRequestQueue(ConnectionActivity.this);
+        RequestQueue queue = Volley.newRequestQueue(ConnectionActivity.this);
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
             Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
                 @Override
@@ -70,17 +70,24 @@ public class ConnectionActivity extends AppCompatActivity {
                         try {
                             JSONObject jsonObject = response.getJSONObject(0);
                             String[] lastConnection = jsonObject.getString("last_connection").split("-");
+                            String[] trialVersion = jsonObject.getString("trial_version").split("-");
                             LocalDate localDate = LocalDate.of(
                                     Integer.parseInt(lastConnection[0]),
                                     Integer.parseInt(lastConnection[1]),
                                     Integer.parseInt(lastConnection[2])
+                            );
+                            LocalDate trial = LocalDate.of(
+                                    Integer.parseInt(trialVersion[0]),
+                                    Integer.parseInt(trialVersion[1]),
+                                    Integer.parseInt(trialVersion[2])
                             );
                             Account account = new Account(
                                     jsonObject.getInt("_id"),
                                     jsonObject.getString("name"),
                                     jsonObject.getString("login"),
                                     jsonObject.getString("pwd"),
-                                    localDate
+                                    localDate,
+                                    trial
                             );
                             Session.sessionStart(account);
                             System.out.println(jsonObject);
@@ -103,14 +110,14 @@ public class ConnectionActivity extends AppCompatActivity {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     //Toast.makeText(ConnectionActivity.this, "Une erreur s'est produite...", Toast.LENGTH_LONG).show();
-                    alert("Une erreur s'est produite...");
+                    alert("Le serveur est injoignable...");
                 }
 
         });
-        queue.add(jsonArrayRequest);*/
+        queue.add(jsonArrayRequest);
 
-        final Intent intent = new Intent(ConnectionActivity.this, BoardActivity.class);
-        startActivity(intent);
+        /*final Intent intent = new Intent(ConnectionActivity.this, BoardActivity.class);
+        startActivity(intent);*/
     }
 
     public void alert (String text){
@@ -119,12 +126,12 @@ public class ConnectionActivity extends AppCompatActivity {
         alert.setVisibility(View.VISIBLE);
         Animation fadeIn = new AlphaAnimation(0, 1);
         fadeIn.setInterpolator(new DecelerateInterpolator()); //add this
-        fadeIn.setDuration(4000);
+        fadeIn.setDuration(2000);
 
         Animation fadeOut = new AlphaAnimation(1, 0);
         fadeOut.setInterpolator(new AccelerateInterpolator()); //and this
-        fadeOut.setStartOffset(1000);
-        fadeOut.setDuration(3000);
+        fadeOut.setStartOffset(5000);
+        fadeOut.setDuration(1000);
 
         AnimationSet animation = new AnimationSet(false); //change to false
         animation.addAnimation(fadeIn);

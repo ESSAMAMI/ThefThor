@@ -11,14 +11,16 @@ public class Account {
     private String name;
     private String login;
     private String pwd;
+    private LocalDate trial;
     private LocalDate lastConnection;
 
-    public Account(int idAccount, String name, String login, String pwd, LocalDate lastConnection) {
+    public Account(int idAccount, String name, String login, String pwd, LocalDate lastConnection, LocalDate trial) {
         this.idAccount = idAccount;
         this.name = name;
         this.login = login;
         this.pwd = pwd;
         this.lastConnection = lastConnection;
+        this.trial = trial;
     }
 
 
@@ -62,6 +64,14 @@ public class Account {
         this.lastConnection = lastConnection;
     }
 
+    public LocalDate getTrial() {
+        return trial;
+    }
+
+    public void setTrial(LocalDate trial) {
+        this.trial = trial;
+    }
+
     @Override
     public String toString() {
         return "Account{" +
@@ -69,6 +79,7 @@ public class Account {
                 ", name='" + name + '\'' +
                 ", login='" + login + '\'' +
                 ", pwd='" + pwd + '\'' +
+                ", trial=" + trial +
                 ", lastConnection=" + lastConnection +
                 '}';
     }

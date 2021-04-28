@@ -21,9 +21,9 @@
         android:icon="@drawable/notifications"
         android:title="Notifications" />
 
-    <item
+    <!--<item
         android:id="@+id/parametre"
         android:icon="@drawable/settings"
-        android:title="Paramètres" />
+        android:title="Paramètres" />-->
 
 </menu>
