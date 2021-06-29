@@ -110,9 +110,11 @@ public class BoardActivity extends AppCompatActivity {
                             if(status){
                                 //Toast.makeText(BoardActivity.this, "Start", Toast.LENGTH_LONG).show();
                                 cameraStatus.setText("Allumée");
+                                findViewById(R.id.card_power_on).setBackgroundColor(ColorTemplate.rgb("F3AD4C"));
                             }else{
                                 //Toast.makeText(BoardActivity.this, "STOP", Toast.LENGTH_LONG).show();
                                 cameraStatus.setText("Arrêtée");
+                                findViewById(R.id.card_power_on).setBackgroundColor(ColorTemplate.rgb("FFFFFF"));
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -137,7 +139,7 @@ public class BoardActivity extends AppCompatActivity {
 
         new BackgroundTask().execute();
     }
-    
+
 
     public void getAlerts(){
 
@@ -212,8 +214,11 @@ public class BoardActivity extends AppCompatActivity {
                         break;
                     case R.id.profil:
                         TextView userName = findViewById(R.id.user_name);
+                        //userName.setEnabled(false);
                         TextView userSurName = findViewById(R.id.user_suername);
+                        //userName.setEnabled(false);
                         TextView userEmail = findViewById(R.id.user_email);
+                        //userEmail.setEnabled(false);
                         TextView userPwd = findViewById(R.id.user_pwd);
 
                         String[] userData = Session.getSession().getAccount().getName().split(" ");
@@ -237,7 +242,10 @@ public class BoardActivity extends AppCompatActivity {
                         layoutNotification.setVisibility(View.VISIBLE);
                         layoutProfil.setVisibility(View.INVISIBLE);
                         layoutSynthese.setVisibility(View.INVISIBLE);
-                        //findViewById(R.id.notification_bulle).setVisibility(View.INVISIBLE);
+                        findViewById(R.id.notification_bulle).setVisibility(View.INVISIBLE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putInt("CLOSE_NOTIFICATION", 1);
+                        editor.apply();
                         break;
                 }
                 return true;
@@ -305,7 +313,17 @@ public class BoardActivity extends AppCompatActivity {
         TextView trial = findViewById(R.id.countdown_trial);
         TextView titleTv = findViewById(R.id.titleTv);
         TextView connectionCounter = findViewById(R.id.notification_counter);
-        connectionCounter.setText(String.valueOf(N_SIZE));
+        try{
+            int CLOSE_NOTIFICATION = sharedPreferences.getInt("CLOSE_NOTIFICATION", 0);
+            if(CLOSE_NOTIFICATION == 1){
+                findViewById(R.id.notification_bulle).setVisibility(View.INVISIBLE);
+            }else{
+                connectionCounter.setText(String.valueOf(N_SIZE));
+            }
+        }catch (Exception e){
+            connectionCounter.setText(String.valueOf(N_SIZE));
+        }
+
         TextView lastConnection = findViewById(R.id.last_connection);
         lastConnection.setText(Session.getSession().getAccount().getLastConnection().toString());
         LocalDate today = LocalDate.now();
@@ -345,7 +363,15 @@ public class BoardActivity extends AppCompatActivity {
                     int PUSH_SIZE = sharedPreferences.getInt("PUSH_SIZE", 0);
                     //Toast.makeText(BoardActivity.this, String.valueOf(PUSH_SIZE), Toast.LENGTH_SHORT).show();
                     if(PUSH_SIZE < notifications.size()){
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putInt("CLOSE_NOTIFICATION", 0);
+                        editor.putInt("VALUE_PUSH", notifications.size() - PUSH_SIZE);
+                        editor.apply();
                         setData();
+                        findViewById(R.id.notification_bulle).setVisibility(View.VISIBLE);
+                        TextView connectionCounter = findViewById(R.id.notification_counter);
+
+                        connectionCounter.setText(String.valueOf(sharedPreferences.getInt("VALUE_PUSH", 0)));
                         Notification n = ArrayManipulator.foundArray(notifications);
                         sendNotificationChannel(
                                 n.getTag(),
@@ -354,6 +380,15 @@ public class BoardActivity extends AppCompatActivity {
                         );
                     }else{
                         setData();
+                        int CLOSE_NOTIFICATION = sharedPreferences.getInt("CLOSE_NOTIFICATION", 0);
+                        if(CLOSE_NOTIFICATION == 1){
+                            findViewById(R.id.notification_bulle).setVisibility(View.INVISIBLE);
+                        }else{
+                            TextView connectionCounter = findViewById(R.id.notification_counter);
+                            connectionCounter.setText(String.valueOf(sharedPreferences.getInt("VALUE_PUSH", 0)));
+                        }
+
+
                     }
 
                 }

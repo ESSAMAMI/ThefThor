@@ -192,6 +192,7 @@
             app:cardCornerRadius="15dp"
             app:cardPreventCornerOverlap="true">
             <RelativeLayout
+                android:id="@+id/card_power_on"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/orange">

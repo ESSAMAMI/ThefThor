@@ -18,14 +18,29 @@ guard on his smartphone.
 - ESSAMAMI Hamza
 
 
-```md
-pip install -r requirements.txt
-```
+
 
 ### **How to use** :bulb:
 
 Android app to install on your mobile phone (android)
 Currently in build...
+
+### **UI / UX Design** :fire:
+`Launcher`
+<img src="screen/1.jpg">
+
+`Sign-in Screen`
+<img src="screen/1.jpg">
+
+`Sign-in Screen`
+<img src="screen/2.jpg">
+
+`Board Screen`
+<img src="screen/3.jpg">
+
+`Profil Screen`
+<img src="screen/4.jpg">
+
 
 ### **Contributing** :lock:
 Pull requests are welcome. For major changes, please open an issue first 
