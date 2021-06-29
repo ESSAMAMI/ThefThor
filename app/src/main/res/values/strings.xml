@@ -8,6 +8,8 @@
     <string name="check">Se souvenir de moi</string>
     <string name="mdpoublie">Mot de passe oublié?</string>
     <string name="URL_CONNECTION">https://thefthor.picatinny.space/app/connection/%s</string>
+    <string name="URL_RUN_STOP_DEVICES">https://thefthor.picatinny.space/app/console/stop_run_camera/%s</string>
     <string name="URL_ALERTS">https://thefthor.picatinny.space/app/alerts/%s</string>
+    <string name="MORE_INFO">https://thefthor.picatinny.space/notifications/more_info/%s.token_id=%s</string>
 
 </resources>

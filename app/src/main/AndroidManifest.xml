@@ -9,6 +9,7 @@
         tools:ignore="ScopedStorage" />
 
     <application
+        android:name=".app.App"
         android:fullBackupContent="true"
         android:allowBackup="true"
         android:icon="@mipmap/logo"

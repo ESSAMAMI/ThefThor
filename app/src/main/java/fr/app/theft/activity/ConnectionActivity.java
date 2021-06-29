@@ -1,6 +1,8 @@
 package fr.app.theft.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,6 +13,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -27,23 +30,34 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 
 import fr.app.theft.R;
+import fr.app.theft.adapter.LocalDateAdapter;
 import fr.app.theft.entities.Account;
 import fr.app.theft.utils.Session;
 
 public class ConnectionActivity extends AppCompatActivity {
 
     private Handler handler = new Handler();
+    private SharedPreferences sharedPreferences;
+    private CheckBox rememberMe;
+    private static final String SESSION = "USER_SESSION";
     //private static final String URL_CONNETION = ;
 
     @Override
@@ -51,6 +65,8 @@ public class ConnectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.connection_activity);
+        rememberMe = (CheckBox) findViewById(R.id.remember_me);
+
     }
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void signIn(final View v) throws UnsupportedEncodingException {
@@ -89,8 +105,22 @@ public class ConnectionActivity extends AppCompatActivity {
                                     localDate,
                                     trial
                             );
+                            // Create shared pref here to make session manager up after killing app..
+
                             Session.sessionStart(account);
-                            System.out.println(jsonObject);
+                            if(rememberMe.isChecked()){
+
+                                sharedPreferences = getSharedPreferences(SESSION, Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                                Gson gson = new Gson();
+                                String session = gson.toJson(Session.getSession());
+                                editor.putString("Session", session);
+                                editor.putString("Trial_Date", Session.getSession().getAccount().getTrial().toString());
+                                editor.putString("Last_Connection", LocalDate.now().toString());
+                                editor.apply();
+                            }
+
                             final Intent intent = new Intent(ConnectionActivity.this, BoardActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -100,7 +130,6 @@ public class ConnectionActivity extends AppCompatActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
                     }else{
 
                         alert("Le login et ou le mot de passe est incorrect");
@@ -139,4 +168,5 @@ public class ConnectionActivity extends AppCompatActivity {
         alert.setAnimation(animation);
         alert.setVisibility(View.INVISIBLE);
     }
+
 }
