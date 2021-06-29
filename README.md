@@ -30,9 +30,6 @@ Currently in build...
 <img src="screen/1.jpg">
 
 `Sign-in Screen`
-<img src="screen/1.jpg">
-
-`Sign-in Screen`
 <img src="screen/2.jpg">
 
 `Board Screen`
