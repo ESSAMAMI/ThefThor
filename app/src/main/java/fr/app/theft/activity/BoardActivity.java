@@ -1,9 +1,9 @@
+
 package fr.app.theft.activity;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,7 +35,6 @@ import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,31 +43,33 @@ import org.json.JSONObject;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.TreeMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import fr.app.theft.MainActivity;
 import fr.app.theft.R;
 import fr.app.theft.adapter.NotificationAdapter;
 import fr.app.theft.app.App;
-import fr.app.theft.entities.Account;
 import fr.app.theft.entities.Notification;
 import fr.app.theft.fragment.NotificationDescriebFragment;
 import fr.app.theft.utils.ArrayManipulator;
+import fr.app.theft.utils.DateFormatter;
 import fr.app.theft.utils.Session;
 
 public class BoardActivity extends AppCompatActivity {
 
-    ArrayList<Notification> notifications;
+    private ArrayList<Notification> notifications = new ArrayList<>();
     RecyclerView recyclerView;
     NotificationAdapter adapter;
     CircleImageView circleImageView;
     CardView startStopCamera;
     private NotificationManagerCompat notificationManager;
     private int N_SIZE;
+    private static boolean CURSOR = false;
 
     private SharedPreferences sharedPreferences;
     private static final String NOTIFICATIONS = "Notifications_push";
@@ -79,7 +80,7 @@ public class BoardActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.board_activity);
-
+        bottomNavigationViewConfiguration();
         RelativeLayout layoutSynthese = findViewById(R.id.layout_synthese);
         circleImageView = findViewById(R.id.avatar);
         layoutSynthese.setVisibility(View.VISIBLE);
@@ -90,6 +91,8 @@ public class BoardActivity extends AppCompatActivity {
         TextView cameraStatus = (TextView) findViewById(R.id.cameras_stauts);
 
         getAlerts();
+
+        scheduledSetBarChart();
         scheduledTasks();
         // Notification manager
         notificationManager = NotificationManagerCompat.from(this);
@@ -128,64 +131,75 @@ public class BoardActivity extends AppCompatActivity {
                 }
                 );
                 queue.add(jsonArrayRequest);
+
             }
         });
         circleImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                avatar();
+                signOut();
             }
         });
-
-        new BackgroundTask().execute();
+        setData();
     }
-
 
     public void getAlerts(){
 
-        notifications = new ArrayList<>();
         String userID = String.valueOf(Session.getSession().getAccount().getIdAccount());
         String url = String.format(getResources().getString(R.string.URL_ALERTS), userID);
 
         RequestQueue queue = Volley.newRequestQueue(BoardActivity.this);
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                 Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onResponse(JSONArray response) {
-                if(response.length() > 0){
-                    try {
-                        for(int i = 0; i < response.length(); i++){
-                            JSONObject alert = response.getJSONObject(i);
-                            String[] date = alert.getString("date_submit").split("-");
-                            LocalDate dateSubmit = LocalDate.of(
-                                    Integer.parseInt(date[0]),
-                                    Integer.parseInt(date[1]),
-                                    Integer.parseInt(date[2])
-                            );
-                            Notification nt = new Notification(
-                                    alert.getInt("_id"),
-                                    alert.getString("tag"),
-                                    alert.getString("message"),
-                                    dateSubmit);
+                if(response.length() > notifications.size()) {
+                    notifications = new ArrayList<>();
+                    CURSOR = true;
+                    N_SIZE = response.length();
+                    if(response.length() == 0){
+                        notifications = new ArrayList<>();
+                    }
+                    else if (response.length() > 0) {
+                        try {
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject alert = response.getJSONObject(i);
+                                String[] date = alert.getString("date_submit").split("-");
+                                LocalDate dateSubmit = LocalDate.of(
+                                        Integer.parseInt(date[0]),
+                                        Integer.parseInt(date[1]),
+                                        Integer.parseInt(date[2])
+                                );
+                                Notification nt = new Notification(
+                                        alert.getInt("_id"),
+                                        alert.getString("tag"),
+                                        alert.getString("message"),
+                                        dateSubmit);
 
-                            //Toast.makeText(BoardActivity.this, nt.toString(), Toast.LENGTH_LONG).show();
-                            notifications.add(nt);
+                                //Toast.makeText(BoardActivity.this, nt.toString(), Toast.LENGTH_LONG).show();
+                                notifications.add(nt);
+                                //Toast.makeText(BoardActivity.this, String.valueOf(notifications.size()), Toast.LENGTH_LONG).show();
+
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
 
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                    } else {
+
+                        Toast.makeText(BoardActivity.this, "WARRNING: [NO SUCH DATA FOUND]", Toast.LENGTH_LONG).show();
                     }
-
                 }else{
-
-                    Toast.makeText(BoardActivity.this, "Une erreur s'est produite...", Toast.LENGTH_LONG).show();
+                    CURSOR = false;
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(BoardActivity.this, "Une erreur s'est produiteeeeeee...", Toast.LENGTH_LONG).show();
+                Toast.makeText(BoardActivity.this, "ERROR CODE:03: [HOST UNREACHABLE]", Toast.LENGTH_LONG).show();
 
             }
 
@@ -233,19 +247,21 @@ public class BoardActivity extends AppCompatActivity {
                         break;
                     case R.id.notification:
 
-                        recyclerView = findViewById(R.id.recycler_view_notifications);
-                        recyclerView.setLayoutManager(new LinearLayoutManager(BoardActivity.this));
-                        Collections.sort(notifications);
-                        adapter = new NotificationAdapter(BoardActivity.this, notifications);
-                        recyclerView.setAdapter(adapter);
+                        refreshNotifications();
 
                         layoutNotification.setVisibility(View.VISIBLE);
                         layoutProfil.setVisibility(View.INVISIBLE);
                         layoutSynthese.setVisibility(View.INVISIBLE);
                         findViewById(R.id.notification_bulle).setVisibility(View.INVISIBLE);
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putInt("CLOSE_NOTIFICATION", 1);
-                        editor.apply();
+                        try {
+                            //Toast.makeText(BoardActivity.this, "Shared pref submited", Toast.LENGTH_LONG).show();
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putInt("CLOSE_NOTIFICATION", 1);
+                            editor.apply();
+                        }catch (Exception e){
+                            System.out.print("Error Message: "+e.getMessage());
+                        }
+
                         break;
                 }
                 return true;
@@ -254,35 +270,105 @@ public class BoardActivity extends AppCompatActivity {
         });
     }
 
+    public void scheduledSetBarChart() {
+        final Handler handler = new Handler();
+        final int delay = 1000; // 4000 milliseconds == 4 second
+        handler.postDelayed(new Runnable() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            public void run() {
+                if(notifications.size() > 0){
+                    setBarChart();
+                    N_SIZE = notifications.size();
+                    return;
+                }else{
+                    System.out.print("Volley not finished yet...");
+                }
+                handler.postDelayed(this, delay);
+            }
+        }, delay);
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void setBarChart(){
 
         BarChart chart = findViewById(R.id.barchart);
         LocalDate today = LocalDate.now();
         String[] currentDate = today.toString().split("-");
-
-        int dayOfMonth = today.getDayOfMonth();
-        String month = String.valueOf(today.getMonth().getValue());
+        //Toast.makeText(BoardActivity.this, Arrays.toString(currentDate), Toast.LENGTH_LONG).show();
+        //int dayOfMonth = today.getDayOfMonth();
+        //String month = String.valueOf(today.getMonth().getValue());
         ArrayList<BarEntry> alerts = new ArrayList();
         ArrayList<String> days = new ArrayList();
-        HashMap<String, Integer> dateOccurence = new HashMap<String, Integer>();
-        for(int i = 0; i < 8; i++){
-            // TODO:
-            LocalDate dateToSearch = LocalDate.of(
+        TreeMap<String, Integer> dateOccurence = new TreeMap<String, Integer>();
+        if(Integer.parseInt(currentDate[2]) >= 7){
+            for(int i = 0; i < 8; i++){
+                // TODO:
+                LocalDate dateToSearch = LocalDate.of(
                         Integer.parseInt(currentDate[0]),
                         Integer.parseInt(currentDate[1]),
                         Integer.parseInt(currentDate[2])-i
-                    );
-            int frequency = 0;
-            dateOccurence.put(dateToSearch.toString(), frequency);
-            for(Notification notif: notifications){
-                if(notif.getDate().toString().equals(dateToSearch.toString())){
-                    frequency++;
-                    dateOccurence.put(dateToSearch.toString(), frequency);
+                );
+                int frequency = 0;
+                dateOccurence.put(dateToSearch.toString(), frequency);
+                for(Notification notif: notifications){
+                    if(notif.getDate().toString().equals(dateToSearch.toString())){
+                        frequency++;
+                        dateOccurence.put(dateToSearch.toString(), frequency);
+                    }
+                }
+            }
+        }else{
+            //int maxDayPerMonth = DateFormatter.maxDayPerMonth(Integer.parseInt(currentDate[1])-1);
+            int first = 0;
+            boolean previousMonth = false;
+            int previousMaxDay = DateFormatter.maxDayPerMonth(Integer.parseInt(currentDate[1])-1);
+            for(int i = 0; i < 8; i++){
+                // TODO:
+                int day = Integer.parseInt(currentDate[2])-i;
+                int monthCal = Integer.parseInt(currentDate[1]);
+                LocalDate dateToSearch = LocalDate.now();
+                if((day == 0) || (previousMonth)){
+                    previousMonth = true;
+                    int maxDayPerMonth = DateFormatter.maxDayPerMonth(monthCal-1);
+                    if(first == 0){
+                        dateToSearch = LocalDate.of(
+                                Integer.parseInt(currentDate[0]),
+                                monthCal-1,
+                                maxDayPerMonth
+                        );
+                        first ++;
+                    }else{
+                        previousMaxDay--;
+                        dateToSearch = LocalDate.of(
+                                Integer.parseInt(currentDate[0]),
+                                monthCal-1,
+                                previousMaxDay
+                        );
+                    }
+
+                }else{
+                    dateToSearch = LocalDate.of(
+                    Integer.parseInt(currentDate[0]),
+                    Integer.parseInt(currentDate[1]),
+                    Integer.parseInt(currentDate[2]) - i);
+                }
+
+
+                //System.out.println("Date====================>"+dateToSearch);
+                int frequency = 0;
+                dateOccurence.put(dateToSearch.toString(), frequency);
+                for(Notification notif: notifications){
+                    if(notif.getDate().toString().equals(dateToSearch.toString())){
+                        frequency++;
+                        dateOccurence.put(dateToSearch.toString(), frequency);
+                    }
                 }
             }
         }
 
+        dateOccurence = ArrayManipulator.sortHashMapByValues(dateOccurence);
+
+        //Toast.makeText(BoardActivity.this, dateOccurence.toString(), Toast.LENGTH_LONG).show();
         int position = 0;
         for (Map.Entry<String, Integer> occurence : dateOccurence.entrySet()) {
             String date = occurence.getKey();
@@ -298,14 +384,22 @@ public class BoardActivity extends AppCompatActivity {
         int[] colors = {ColorTemplate.rgb("F3AD4C")};
         bardataset.setColors(colors);
         chart.setData(data);
-
+    }
+    public void refreshNotifications(){
+        recyclerView = findViewById(R.id.recycler_view_notifications);
+        recyclerView.setLayoutManager(new LinearLayoutManager(BoardActivity.this));
+        Collections.sort(notifications);
+        adapter = new NotificationAdapter(BoardActivity.this, notifications);
+        recyclerView.setAdapter(adapter);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void setData(){
 
         N_SIZE = notifications.size();
-
+        if(N_SIZE == 0){
+            findViewById(R.id.notification_bulle).setVisibility(View.INVISIBLE);
+        }
         Collections.sort(notifications);
         adapter = new NotificationAdapter(BoardActivity.this, notifications);
         recyclerView.setAdapter(adapter);
@@ -318,7 +412,7 @@ public class BoardActivity extends AppCompatActivity {
             if(CLOSE_NOTIFICATION == 1){
                 findViewById(R.id.notification_bulle).setVisibility(View.INVISIBLE);
             }else{
-                connectionCounter.setText(String.valueOf(N_SIZE));
+                //connectionCounter.setText(String.valueOf(N_SIZE));
             }
         }catch (Exception e){
             connectionCounter.setText(String.valueOf(N_SIZE));
@@ -336,10 +430,6 @@ public class BoardActivity extends AppCompatActivity {
         CircleImageView circleImageView = findViewById(R.id.avatar);
         circleImageView.setImageResource(id);
 
-        sharedPreferences = getSharedPreferences(NOTIFICATIONS, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt("PUSH_SIZE", notifications.size());
-        editor.apply();
     }
 
     public void scheduledTasks(){
@@ -350,7 +440,14 @@ public class BoardActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             public void run() {
-                getAlerts();
+                if(CURSOR){
+                    getAlerts();
+                    refreshNotifications();
+                    setBarChart();
+                }else{
+                    getAlerts();
+                }
+
                 handler.postDelayed(this, delay);
             }
         }, delay);
@@ -358,48 +455,30 @@ public class BoardActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             public void run() {
-                if(notifications.size() > 0){
-                    N_SIZE = notifications.size();
-                    int PUSH_SIZE = sharedPreferences.getInt("PUSH_SIZE", 0);
-                    //Toast.makeText(BoardActivity.this, String.valueOf(PUSH_SIZE), Toast.LENGTH_SHORT).show();
-                    if(PUSH_SIZE < notifications.size()){
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putInt("CLOSE_NOTIFICATION", 0);
-                        editor.putInt("VALUE_PUSH", notifications.size() - PUSH_SIZE);
-                        editor.apply();
-                        setData();
-                        findViewById(R.id.notification_bulle).setVisibility(View.VISIBLE);
-                        TextView connectionCounter = findViewById(R.id.notification_counter);
+                // Checks if a new notification has arrived...
+                if((CURSOR) && (notifications.size() > 0)){
+                    //Toast.makeText(BoardActivity.this, "New notfication arrived", Toast.LENGTH_LONG).show();
+                    refreshNotifications();
+                    findViewById(R.id.notification_bulle).setVisibility(View.VISIBLE);
+                    TextView connectionCounter = findViewById(R.id.notification_counter);
 
-                        connectionCounter.setText(String.valueOf(sharedPreferences.getInt("VALUE_PUSH", 0)));
-                        Notification n = ArrayManipulator.foundArray(notifications);
-                        sendNotificationChannel(
-                                n.getTag(),
-                                n.getMessage(),
-                                n.getId()
-                        );
-                    }else{
-                        setData();
-                        int CLOSE_NOTIFICATION = sharedPreferences.getInt("CLOSE_NOTIFICATION", 0);
-                        if(CLOSE_NOTIFICATION == 1){
-                            findViewById(R.id.notification_bulle).setVisibility(View.INVISIBLE);
-                        }else{
-                            TextView connectionCounter = findViewById(R.id.notification_counter);
-                            connectionCounter.setText(String.valueOf(sharedPreferences.getInt("VALUE_PUSH", 0)));
-                        }
-
-
-                    }
-
+                    connectionCounter.setText("1");
+                    Notification n = ArrayManipulator.foundArray(notifications);
+                    sendNotificationChannel(
+                            n.getTag(),
+                            n.getMessage(),
+                            n.getId()
+                    );
                 }
 
                 handler.postDelayed(this, 5000);
             }
         }, delay);
     }
-    public void avatar(){
+    public void signOut(){
         //Toast.makeText(BoardActivity.this, "Change avatar...", Toast.LENGTH_LONG).show();
         NotificationDescriebFragment notificationDescriebFragment = new NotificationDescriebFragment("SE DECONNECTER");
+        notificationDescriebFragment.show(getSupportFragmentManager(), "Test");
 
     }
 
@@ -414,37 +493,7 @@ public class BoardActivity extends AppCompatActivity {
         notificationManager.notify(id, notification);
     }
 
-    private class BackgroundTask extends AsyncTask<Void, Void, Void> {
 
-        @RequiresApi(api = Build.VERSION_CODES.O)
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            N_SIZE = notifications.size();
-            setData();
-            bottomNavigationViewConfiguration();
-            setBarChart();
-        }
 
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) { }
-
-            return null;
-        }
-
-        @RequiresApi(api = Build.VERSION_CODES.O)
-        @Override
-        public void onPostExecute(Void result) {
-            setData();
-            bottomNavigationViewConfiguration();
-            setBarChart();
-
-            N_SIZE = notifications.size();
-        }
-
-    }
 
 }
